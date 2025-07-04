@@ -169,7 +169,8 @@ def cleanup():
 import atexit
 atexit.register(cleanup)
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     worker_thread = threading.Thread(target=process_request_worker, daemon=True)
     worker_thread.start()
-    app.run(debug=True, port=5000)
+    port = int(os.environ.get("PORT", 8080))
+    app.run(host="0.0.0.0", port=port)
