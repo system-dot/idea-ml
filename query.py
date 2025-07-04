@@ -4,7 +4,8 @@ import requests
 from urllib.parse import urlparse, parse_qs
 import tempfile
 import logging
-from moviepy import VideoFileClip
+# from moviepy import VideoFileClip
+from moviepy.editor import VideoFileClip
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
