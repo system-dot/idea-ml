@@ -12,6 +12,8 @@ from roles import classify_role  # Importing role classification logic
 import queue
 import threading
 import time
+from feedback import analyze_feedback
+
 
 # Load environment variables
 load_dotenv()
@@ -160,6 +162,19 @@ def process_query():
         return jsonify(response_container.get('data', {"success": False, "message": "Processing timeout"}))
     except Exception as e:
         return jsonify({"success": False, "message": str(e)})
+
+@app.route('/feedback', methods=['POST'])
+def feedback_route():
+    try:
+        data = request.get_json()
+        if not data:
+            return jsonify({"success": False, "message": "Invalid JSON"}), 400
+
+        result = analyze_feedback(data)
+        return jsonify(result)
+    except Exception as e:
+        return jsonify({"success": False, "message": str(e)}), 500
+
 
 @app.route('/health', methods=['GET'])
 def health_check():
