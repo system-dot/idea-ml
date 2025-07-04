@@ -22,6 +22,10 @@ if not api_key:
 
 app = Flask(__name__)
 
+@app.route("/")
+def index():
+    return "Hello Tanmay! Please host the web backend as soon as possible, From Harish."
+
 DEMO_SERVER_URL = os.environ.get("DEMO_SERVER_URL", "http://localhost:3000")
 request_queue = queue.PriorityQueue()
 processing_active = True
