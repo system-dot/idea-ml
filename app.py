@@ -21,6 +21,7 @@ if not api_key:
     raise ValueError("GROQ_API_KEY is not set. Check your .env file.")
 
 app = Flask(__name__)
+worker_thread = None
 
 @app.route("/")
 def index():
@@ -165,15 +166,17 @@ def health_check():
     return jsonify({"status": "running", "queue_size": request_queue.qsize()})
 
 def cleanup():
-    global processing_active
+    global processing_active, worker_thread
     processing_active = False
-    worker_thread.join(timeout=5)
+    if worker_thread:
+        worker_thread.join(timeout=5)
     app.logger.info("Worker thread stopped")
+
 
 import atexit
 atexit.register(cleanup)
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     worker_thread = threading.Thread(target=process_request_worker, daemon=True)
     worker_thread.start()
     port = int(os.environ.get("PORT", 8080))
