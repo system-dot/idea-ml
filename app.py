@@ -27,7 +27,7 @@ worker_thread = None
 
 @app.route("/")
 def index():
-    return "Hello Tanmay! Please host the web backend as soon as possible, From Harish."
+    return "Hello Tanmay! Please host the web backend as soon as possible, message from Harish. Fintech Project, This is hosted AI/ML backend"
 
 DEMO_SERVER_URL = os.environ.get("DEMO_SERVER_URL", "http://localhost:3000")
 request_queue = queue.PriorityQueue()
