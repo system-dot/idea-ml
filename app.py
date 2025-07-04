@@ -155,7 +155,7 @@ def process_query():
             response_event.set()
 
         request_queue.put((priority, timestamp, data, store_response))
-        response_event.wait(timeout=360)
+        response_event.wait(timeout=600)
 
         return jsonify(response_container.get('data', {"success": False, "message": "Processing timeout"}))
     except Exception as e:
