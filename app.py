@@ -137,6 +137,32 @@ def process_query_internal(data):
     except Exception as e:
         return {"success": False, "message": str(e)}
 
+# @app.route('/process_query', methods=['POST'])
+# def process_query():
+#     try:
+#         data = request.get_json()
+#         if not data:
+#             return jsonify({"success": False, "message": "Invalid JSON format"}), 400
+
+#         priority = determine_request_priority(data)
+#         timestamp = time.time()
+#         response_event = threading.Event()
+#         response_container = {}
+
+#         def store_response(response):
+#             if isinstance(response, dict):
+#                 response_container['data'] = response
+#             else:
+#                 response_container['data'] = response.get_json() if hasattr(response, 'is_json') and response.is_json else {"success": False, "message": "Invalid response format"}
+#             response_event.set()
+
+#         request_queue.put((priority, timestamp, data, store_response))
+#         response_event.wait(timeout=600)
+
+#         return jsonify(response_container.get('data', {"success": False, "message": "Processing timeout"}))
+#     except Exception as e:
+#         return jsonify({"success": False, "message": str(e)})
+
 @app.route('/process_query', methods=['POST'])
 def process_query():
     try:
@@ -144,24 +170,18 @@ def process_query():
         if not data:
             return jsonify({"success": False, "message": "Invalid JSON format"}), 400
 
+        # Determine priority (still useful for logging or optional sorting)
         priority = determine_request_priority(data)
-        timestamp = time.time()
-        response_event = threading.Event()
-        response_container = {}
+        app.logger.info(f"Processing synchronous request with priority {priority}, query_id: {data.get('query_id')}")
 
-        def store_response(response):
-            if isinstance(response, dict):
-                response_container['data'] = response
-            else:
-                response_container['data'] = response.get_json() if hasattr(response, 'is_json') and response.is_json else {"success": False, "message": "Invalid response format"}
-            response_event.set()
+        # Direct call to internal logic — no queue or threading
+        result = process_query_internal(data)
+        return jsonify(result)
 
-        request_queue.put((priority, timestamp, data, store_response))
-        response_event.wait(timeout=600)
-
-        return jsonify(response_container.get('data', {"success": False, "message": "Processing timeout"}))
     except Exception as e:
-        return jsonify({"success": False, "message": str(e)})
+        app.logger.error(f"Exception in /process_query: {str(e)}")
+        return jsonify({"success": False, "message": str(e)}), 500
+
 
 @app.route('/feedback', methods=['POST'])
 def feedback_route():
@@ -192,7 +212,7 @@ import atexit
 atexit.register(cleanup)
 
 if __name__ == '__main__':
-    worker_thread = threading.Thread(target=process_request_worker, daemon=True)
-    worker_thread.start()
+    # worker_thread = threading.Thread(target=process_request_worker, daemon=True)
+    # worker_thread.start()
     port = int(os.environ.get("PORT", 8080))
     app.run(host="0.0.0.0", port=port)
